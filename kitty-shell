@@ -1,0 +1,48 @@
+#!/usr/bin/env bash 
+
+usage() {
+  echo "Syntax: $0 [-h] [-p] [-s <shell>]"
+  echo "for more info about how to use this script run $0 -h"
+}
+
+help() {
+  echo "A script to easily change the shell that kitty launches."
+  echo 
+  echo "Syntax: $0 [-h] [-p] [-s <shell>]"
+  echo
+  echo "Options:"
+  echo "-h              Print this help message"
+  echo "-p              Print the current shell that kitty launches."
+  echo "-s <shell>      Change the shell that kitty launches to <shell>." 
+  echo 
+}
+
+# export config="$HOME/.config/kitty/kitty.conf"
+
+# export current=$(awk '/shell/*/usr/ {print $3}' "$config")
+
+[ $# -eq 0 ] && usage 
+while getopts ":hps:" arg; do
+  case $arg in 
+    s)
+      shell=${OPTARG}
+      config="$HOME/.config/kitty/kitty.conf"
+      current=$(awk '/shell/*/usr/ {print $3}' "$config")
+      gawk -v c="$current" -v s="$shell" -i inplace '{gsub(c, s, $3); print}' "$config"
+      echo "Replaced $current shell with the $shell shell."
+      ;;
+    p) 
+      config="$HOME/.config/kitty/kitty.conf"
+      current=$(awk '/shell/*/usr/ {print $3}' "$config")
+      echo "Current shell is $(awk '/shell/*/usr/ {print $3}' "$config")."
+      ;;
+    h)
+      help
+      exit 0
+      ;;
+    *)
+      usage 
+      exit 0;
+      ;;
+  esac 
+done
